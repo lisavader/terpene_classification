@@ -205,6 +205,7 @@ def main(input,output,selection,annotation_labels,annotation_colours,group_by,gr
     for seq_record in SeqIO.parse(input, "fasta"):
         protein_record = InterproRecord(seq_record)
         protein_record.assign_enzyme_labels()
+        protein_record.assign_taxonomic_labels()
         all_records.append(protein_record)
     with open(selection, "r") as selection_data:
         selection_dict = ast.literal_eval(selection_data.read())
