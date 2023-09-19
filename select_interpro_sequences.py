@@ -1,6 +1,7 @@
 import argparse
 import re
 import ast
+import json
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 from collections import Counter
@@ -109,6 +110,9 @@ class InterproRecord(SeqRecord):
         if not self.enzyme_subclass:
             self.enzyme_subclass.append("unknown")
 
+    def to_json(self):
+        return json.dumps(self, default=lambda o: o.__dict__, indent=4)
+
 def deduplicate_records(records):
     seq_set=set()
     deduplicated_records=[]
@@ -189,7 +193,14 @@ def write_annotation_colours(records,file_path,group_by,group_colours):
                 colour = grouping_dict.get(attribute_value)
             file.write(record.id+"\t"+"label_background"+"\t"+colour+"\n")
 
-def main(input,output,selection,annotation_labels,annotation_colours,group_by,group_colours):
+def write_json(records, json_dir):
+    for record in records:
+        file_path = json_dir+"/"+record.accession+".json"
+        json_object = record.to_json()
+        with open(file_path,"w") as file:
+            file.write(json_object)
+
+def main(input,output,selection,annotation_labels,annotation_colours,group_by,group_colours,json_dir):
     all_records = []
     for seq_record in SeqIO.parse(input, "fasta"):
         protein_record = InterproRecord(seq_record)
@@ -203,6 +214,8 @@ def main(input,output,selection,annotation_labels,annotation_colours,group_by,gr
         write_annotation_labels(selected_records,annotation_labels)
     if annotation_colours:
         write_annotation_colours(selected_records,annotation_colours,group_by,group_colours)
+    if json_dir:
+        write_json(all_records,json_dir)
 
 if __name__ == "__main__":
     #Argument parsing
@@ -214,6 +227,7 @@ if __name__ == "__main__":
     parser.add_argument("--annotation_colours", type=str, help="Path to annotation colours output")
     parser.add_argument("--group_by", type=str, help="Which attribute to use for grouping")
     parser.add_argument("--group_colours", type=str, help="Legend showing how to colour each group")
+    parser.add_argument("--json_dir", type=str, help="Path to json output dir")
     args = parser.parse_args()
     #Run the main script
-    main(args.input,args.output,args.selection,args.annotation_labels,args.annotation_colours,args.group_by,args.group_colours)
+    main(args.input,args.output,args.selection,args.annotation_labels,args.annotation_colours,args.group_by,args.group_colours,args.json_dir)
