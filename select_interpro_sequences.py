@@ -62,8 +62,8 @@ class InterproRecord(SeqRecord):
         #initiate labels
         self.organism_name = ""
         self.organism_division = ""
-        self.enzyme_class = set()      #can have multiple classes and subclasses, but have to be unique
-        self.enzyme_subclass = set()
+        self.enzyme_class = []      #can have multiple classes and subclasses
+        self.enzyme_subclass = []
 
     def assign_taxonomic_labels(self):
         taxid_translator = ncbi.get_taxid_translator([self.taxid])
@@ -82,32 +82,32 @@ class InterproRecord(SeqRecord):
             for query in query_list:
                 match = re.search(query,self.protein_name, flags=re.IGNORECASE)
                 if match:
-                    self.enzyme_class.add("terpene synthase")
-                    self.enzyme_subclass.add(query_list[0]+" synthase")
+                    self.enzyme_class.append("terpene synthase")
+                    self.enzyme_subclass.append(query_list[0]+" synthase")
 
         for query in generic_terpene:
             match = re.search(query,self.protein_name, flags=re.IGNORECASE)
             if match:
-                self.enzyme_class.add("terpene synthase")
+                self.enzyme_class.append("terpene synthase")
 
         # Recognise prenyltransferases
         for query_list in [FPP,GGPP,phytoene,squalene,HPP]:
             for query in query_list:
                 match = re.search(query,self.protein_name, flags=re.IGNORECASE)
                 if match:
-                    self.enzyme_class.add("prenyltransferase")
-                    self.enzyme_subclass.add(query_list[0]+" synthase")
+                    self.enzyme_class.append("prenyltransferase")
+                    self.enzyme_subclass.append(query_list[0]+" synthase")
 
         for query in generic_prenyltransferase:
             match = re.search(query,self.protein_name, flags=re.IGNORECASE)
             if match:
-                self.enzyme_class.add("prenyltransferase")
+                self.enzyme_class.append("prenyltransferase")
 
         if not self.enzyme_class:
-            self.enzyme_class.add("unknown")
+            self.enzyme_class.append("unknown")
 
         if not self.enzyme_subclass:
-            self.enzyme_subclass.add("unknown")
+            self.enzyme_subclass.append("unknown")
 
 def deduplicate_records(records):
     seq_set=set()
@@ -149,7 +149,7 @@ def select_records(records,selection_dict):
         for attribute_name,selection_values in selection_dict.items():
             match = False   #whether a match is found for this attribute
             attribute_value = getattr(record, attribute_name)
-            if isinstance(attribute_value, set):    #check for all set items
+            if isinstance(attribute_value, list):    #check for all list items
                 for item in attribute_value:
                     if item in selection_values:
                         match = True
