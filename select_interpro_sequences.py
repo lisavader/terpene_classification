@@ -63,8 +63,8 @@ class InterproRecord(SeqRecord):
         #initiate labels
         self.organism_name = ""
         self.organism_division = ""
-        self.enzyme_class = []      #can have multiple classes and subclasses
-        self.enzyme_subclass = []
+        self.enzyme_class = {}      #can have multiple classes and subclasses
+        self.enzyme_subclass = {}
 
     def assign_taxonomic_labels(self):
         taxid_translator = ncbi.get_taxid_translator([self.taxid])
@@ -83,32 +83,36 @@ class InterproRecord(SeqRecord):
             for query in query_list:
                 match = re.search(query,self.protein_name, flags=re.IGNORECASE)
                 if match:
-                    self.enzyme_class.append("terpene synthase")
-                    self.enzyme_subclass.append(query_list[0]+" synthase")
+                    self.enzyme_class.add("terpene synthase")
+                    self.enzyme_subclass.add(query_list[0]+" synthase")
 
         for query in generic_terpene:
             match = re.search(query,self.protein_name, flags=re.IGNORECASE)
             if match:
-                self.enzyme_class.append("terpene synthase")
+                self.enzyme_class.add("terpene synthase")
 
         # Recognise prenyltransferases
         for query_list in [FPP,GGPP,phytoene,squalene,HPP]:
             for query in query_list:
                 match = re.search(query,self.protein_name, flags=re.IGNORECASE)
                 if match:
-                    self.enzyme_class.append("prenyltransferase")
-                    self.enzyme_subclass.append(query_list[0]+" synthase")
+                    self.enzyme_class.add("prenyltransferase")
+                    self.enzyme_subclass.add(query_list[0]+" synthase")
 
         for query in generic_prenyltransferase:
             match = re.search(query,self.protein_name, flags=re.IGNORECASE)
             if match:
-                self.enzyme_class.append("prenyltransferase")
+                self.enzyme_class.add("prenyltransferase")
 
         if not self.enzyme_class:
-            self.enzyme_class.append("unknown")
+            self.enzyme_class.add("unknown")
 
         if not self.enzyme_subclass:
-            self.enzyme_subclass.append("unknown")
+            self.enzyme_subclass.add("unknown")
+
+        # Convert set to list (for compatibility with json)
+        self.enzyme_class = list(self.enzyme_class)
+        self.enzyme_subclass = list(self.enzyme_subclass)
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, indent=4)
