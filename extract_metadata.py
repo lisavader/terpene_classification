@@ -10,7 +10,7 @@ def write_json(records, json_out):
         with open(file_path,"w") as file:
             file.write(json_object)
 
-def main(input, json_dir, table_out):
+def main(input, json_dir):
     records = []
     fasta_dict = read_fasta(input)
     for header,seq in fasta_dict.items():
