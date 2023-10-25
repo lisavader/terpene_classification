@@ -1,0 +1,67 @@
+---
+title: "Analysis of hmmer hits to current antiSMASH profiles"
+output: html_notebook
+---
+
+```{r}
+packages <- c("tidyverse","magrittr","ggplot2")
+for (package in packages){
+  if (!require(package, character.only = TRUE)) install.packages(package)
+  require(package, character.only = TRUE, quietly = TRUE)
+}
+theme_set(theme_bw())
+```
+
+Input files:
+```{r}
+metadata_file <- "metadata_table.csv"
+hmmer_annotated_file <- "IPR008949_fungi_annotated.tsv"
+```
+
+Read in annotated hmmer output
+```{r}
+hmmer_annotated <- read_tsv(hmmer_annotated_file)
+```
+
+Select the top hit for each ID
+```{r}
+hmmer_top <- hmmer_annotated %>% group_by(query_id) %>% top_n(1,bitscore) %>% ungroup()
+```
+
+Add metadata
+```{r}
+metadata <- read_csv(metadata_file)
+metadata %<>% mutate(enzyme_class = gsub("\\[|\\]|\\'","",enzyme_class)) %>% mutate(enzyme_subclass = gsub("\\[|\\]|\\'","",enzyme_subclass)) #remove characters from python lists
+hmmer_top %<>% full_join(metadata, by=c("query_id"="accession"))
+```
+
+Add hit column, that specifies (in case of a significant hit) an hmm profile, a nonsignificant hit or no hit at all
+```{r}
+hmmer_top %<>% mutate(hit = ifelse(significant, id, "not significant")) %>% mutate(hit = ifelse(is.na(significant),"no hit",hit))
+```
+
+Plot the results per enzyme type
+```{r}
+hits_per_subclass <- hmmer_top %>% mutate(enzyme_subclass = gsub(" synthase","",enzyme_subclass)) %>% filter(enzyme_subclass != "unknown") %>% count(enzyme_subclass,hit) 
+hits_per_subclass_reviewed <- hmmer_top %>% mutate(enzyme_subclass = gsub(" synthase","",enzyme_subclass)) %>% filter(enzyme_subclass != "unknown", review_status == "reviewed") %>% count(enzyme_subclass,hit)
+```
+
+```{r}
+subclass_order <- c("FPP","FPP, squalene","GGPP","phytoene","phytoene, tetraterpene","phytoene, squalene","squalene","HPP", "monoterpene","sesquiterpene","diterpene","sesterterpene","triterpene","tetraterpene")
+hit_order <- c("AMP-binding","fung_ggpps","fung_ggpps2","p450","phytoene_synt","Pkinase","Terpene_synth_C","TRI5","trichodiene_synth","not significant","no hit")
+hit_colours <- c("#88CCEE", "#CC6677", "#DDCC77", "#117733", "#332288", "#AA4499", 
+                             "#44AA99", "#999933", "#661100", "#D3D3D3","#808080")
+```
+
+```{r}
+ggplot(data=hits_per_subclass, aes(y=factor(enzyme_subclass, level=rev(subclass_order)),x=n,fill=factor(hit, level=rev(hit_order))))+
+  geom_bar(stat="identity")+
+  scale_fill_manual(breaks=hit_order, values=hit_colours)+
+  labs(fill="hmm profile",x="nr. of hits",y="enzyme type")
+```
+```{r}
+ggplot(data=hits_per_subclass_reviewed, aes(y=factor(enzyme_subclass, level=rev(subclass_order)),x=n,fill=factor(hit, level=rev(hit_order))))+
+  geom_bar(stat="identity")+
+  scale_fill_manual(breaks=hit_order, values=hit_colours)+
+    labs(fill="hmm profile",x="nr. of hits",y="enzyme type")
+```
