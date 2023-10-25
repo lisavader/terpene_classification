@@ -21,11 +21,11 @@ def write_json(records, json_out):
         with open(file_path,"w") as file:
             file.write(json_object)
 
-def main(input, json_dir):
+def main(fasta_in, json_dir):
     records = []
-    fasta_dict = read_fasta(input)
-    for header,seq in fasta_dict.items():
-        record = InterproRecord(header,seq)
+    fasta_dict = read_fasta(fasta_in)
+    for header in fasta_dict.keys():
+        record = InterproRecord(header)
         record.assign_enzyme_labels()
         record.assign_taxonomic_labels()
         record = curate_record(record)
@@ -35,8 +35,8 @@ def main(input, json_dir):
 if __name__ == "__main__":
     #Argument parsing
     parser = argparse.ArgumentParser()
-    parser.add_argument("input", type=str, help="Path to .fasta file with sequences from InterPro")
+    parser.add_argument("fasta_in", type=str, help="Path to .fasta file with sequences from InterPro")
     parser.add_argument("json_dir", type=str, help="Path to json output directory")
     args = parser.parse_args()
     #Run the main script
-    main(args.input, args.json_dir)
+    main(args.fasta_in, args.json_dir)

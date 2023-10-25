@@ -27,12 +27,11 @@ enzyme_types = {
 }
 
 class InterproRecord:
-    def __init__(self, header, seq):
-        self.header = header
-        self.seq = seq
+    def __init__(self, header):
+        self._header = header
 
         #split header into relevant fields
-        fields = self.header.split("|")
+        fields = self._header.split("|")
         self.accession = fields[0]
         self.review_status = fields[1]
         self.protein_name = fields[2]
