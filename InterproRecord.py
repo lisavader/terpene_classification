@@ -6,12 +6,14 @@ from types import SimpleNamespace
 #query lists for enzyme classification
 enzyme_types = {
     "terpenes": {
-        "monoterpene" : ("monoterpene","iridoid"),
+        "monoterpene" : ("monoterpene","iridoid","methylisoborneol","cineole"),
         "sesquiterpene" : ("sesquiterpene","sesquiterpenoid","trichodiene","trichodience","protoilludene","aristolochene","guaiadiene","germacrene"
                            ,"farnesene","viridiflorene","cuprenene","muurolene","longiborneol","presilphiperfolanol","eremophilene","cadinene"
-                           ,"santalene","isozizaene","pentalenene","pristinol"),
+                           ,"santalene","isozizaene","pentalenene","pristinol","isoafricanol","muurolol","cubebol","caryolanol","selinadiene"
+                           ,"linalool","eudesmol","amorphene","corvol ether","germacradienol","caryophyllene","avermitilol",),
         "diterpene" : ("diterpene","variediene","fusicoccadiene","conidiogenone","araneosene","kaurene","phomopsene","dolastadiene","aphidicolanol"
-                       ,"paxilline","BcPAX1","copalyl diphosphate","gibberellin","phyllocladanol"),
+                       ,"paxilline","BcPAX1","copalyl diphosphate","gibberellin","phyllocladanol","labdatriene","cyclooctatenol","tsukubadiene",
+                       "spiroviolene","pimaradiene","terpentetriene"),
         "sesterterpene" : ("sesterterpene","ophiobolin","preasperterpenoid","preaspterpenacid","stellatatriene","astellifadiene","quiannulatene"
                            ,"sesterbrasiliatriene","sesterfisherol","preterpestacin","aspergildiene","fusoxypene"),
         "triterpene" : ("triterpene","macrophomene","talaropentaene"),
