@@ -1,40 +1,21 @@
 import argparse
 import glob
-import ast
+import json
+import jmespath
 
-from InterproRecord import InterproRecord
 from fasta_parsing import read_fasta, write_fasta
 
-def select_accessions(records, selection_dict):
-    selected_accessions=[]
-    for record in records:
-        for attribute_name,selection_values in selection_dict.items():
-            match = False   #whether a match is found for this attribute
-            attribute_value = getattr(record, attribute_name)
-            if isinstance(attribute_value, list):    #check for all list items
-                for item in attribute_value:
-                    if item in selection_values:
-                        match = True
-                        break
-            else:
-                if attribute_value in selection_values:
-                    match = True
-            if match == False:  #all attributes in the selection dict must yield a match
-                break
-        if match == True:
-            selected_accessions.append(record.accession)
-    return selected_accessions
-
-def main(fasta_in, fasta_out, json_dir, selection):
+def main(fasta_in, fasta_out, json_dir, query):
     json_files = glob.glob(json_dir+"/*.json")
-    records=[]
+    selected_accessions = []
     for json_file in json_files:
-        record = InterproRecord.from_json(json_file)
-        records.append(record)
-    with open(selection, "r") as selection_data:
-        selection_dict = ast.literal_eval(selection_data.read())
-    selected_accessions = select_accessions(records, selection_dict)
-
+        with open(json_file) as f:
+            json_object = json.load(f)
+        found = jmespath.search(query, data=json_object)
+        if found:
+            accession = jmespath.search("accession", data=json_object)
+            print(accession)
+            selected_accessions.append(accession)
     selected_headers = []
     selected_seqs = []
     fasta_dict = read_fasta(fasta_in)
@@ -50,8 +31,8 @@ if __name__ == "__main__":
     parser.add_argument("fasta_in", type=str, help="Path to fasta input file")
     parser.add_argument("fasta_out", type=str, help="Path to fasta output file")
     parser.add_argument("json_dir", type=str, help="Path to directory with metadata files in .json format")
-    parser.add_argument("selection", type=str, help="Path to file with selection criteria in dict format")
+    parser.add_argument("query", type=str, help="A query for searching metadata, may use ==, =!, &&, || and ().")
     args = parser.parse_args()
     #Run the main script
-    main(args.fasta_in, args.fasta_out, args.json_dir, args.selection)
+    main(args.fasta_in, args.fasta_out, args.json_dir, args.query)
 
