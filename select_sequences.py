@@ -14,7 +14,6 @@ def main(fasta_in, fasta_out, json_dir, query):
         found = jmespath.search(query, data=json_object)
         if found:
             accession = jmespath.search("accession", data=json_object)
-            print(accession)
             selected_accessions.append(accession)
     selected_headers = []
     selected_seqs = []
