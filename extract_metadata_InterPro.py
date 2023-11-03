@@ -1,6 +1,6 @@
 import argparse
 
-from InterproRecord import InterproRecord
+from Records import InterproRecord
 from fasta_parsing import read_fasta
 
 def curate_record(record):
@@ -26,7 +26,7 @@ def main(fasta_in, json_dir):
     fasta_dict = read_fasta(fasta_in)
     for header in fasta_dict.keys():
         record = InterproRecord(header)
-        record.assign_enzyme_labels()
+        record.assign_enzyme_type()
         record.assign_taxonomic_labels()
         record = curate_record(record)
         records.append(record)
