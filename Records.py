@@ -28,22 +28,19 @@ enzyme_types = {
     }
 }
 
-class InterproRecord:
-    def __init__(self, header):
-        self._header = header
-
-        #split header into relevant fields
-        fields = self._header.split("|")
-        self.accession = fields[0]
-        self.review_status = fields[1]
-        self.protein_name = fields[2]
-        self.taxid = int(fields[3].removeprefix("taxID:"))
+class ProteinRecord:
+    def __init__(self, database, header, accession, reviewed, protein_name, taxid):
+        self.database = database
+        self.header = header
+        self.accession = accession
+        self.reviewed = reviewed
+        self.protein_name = protein_name
+        self.taxid = taxid
 
         #initiate labels
         self.organism_name = ""
         self.organism_division = ""
-        self.enzyme_class = set()      #can have multiple classes and subclasses
-        self.enzyme_subclass = set()
+        self.enzyme_type = set()      #can have multiple functions
 
     def assign_taxonomic_labels(self):
         ncbi = NCBITaxa()       #connector to ncbi database
@@ -57,7 +54,7 @@ class InterproRecord:
         else:
             self.organism_division = "Other"
 
-    def assign_enzyme_labels(self):
+    def assign_enzyme_type(self):
         # Recognise terpene synthases
         for terpene_type, terpene_names in enzyme_types["terpenes"].items():
             for terpene_name in terpene_names:
@@ -69,13 +66,7 @@ class InterproRecord:
                         pattern = re.sub(suffix, "(-.*-)?"+suffix, pattern)
                 match = re.search(pattern, self.protein_name, flags=re.IGNORECASE)
                 if match:
-                    self.enzyme_class.add("terpene synthase")
-                    self.enzyme_subclass.add(terpene_type+" synthase")
-                else:       # if no specific terpene name is found, search for generic descriptors of a terpene synthase
-                    for pattern in ["terpene", "terpenoid"]:
-                        match = re.search(pattern, self.protein_name, flags=re.IGNORECASE)
-                        if match:
-                            self.enzyme_class.add("terpene synthase")
+                    self.enzyme_type.add(terpene_type+" synthase")
 
         # Recognise prenyltransferases
         for pt_type, pt_names in enzyme_types["prenyltransferases"].items():
@@ -83,22 +74,13 @@ class InterproRecord:
                 pattern = pt_name.replace(" ","[_-]?")
                 match = re.search(pattern, self.protein_name, flags=re.IGNORECASE)
                 if match:
-                    self.enzyme_class.add("prenyltransferase")
-                    self.enzyme_subclass.add(pt_type+" synthase")
-                else:
-                    for pattern in ["prenyl transferase","polyprenyl","polyprenyl diphosphate"]:
-                        match = re.search(pattern, self.protein_name, flags=re.IGNORECASE)
-                        if match:
-                            self.enzyme_class.add("prenyltransferase")
+                    self.enzyme_type.add(pt_type+" synthase")
 
-        if not self.enzyme_class:
-            self.enzyme_class.add("unknown")
-        if not self.enzyme_subclass:
-            self.enzyme_subclass.add("unknown")
+        if not self.enzyme_type:
+            self.enzyme_type.add("unknown")
 
         # Convert set to list (for compatibility with json)
-        self.enzyme_class = list(self.enzyme_class)
-        self.enzyme_subclass = list(self.enzyme_subclass)
+        self.enzyme_type = list(self.enzyme_type)
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, indent=4)
@@ -107,3 +89,17 @@ class InterproRecord:
     def from_json(json_file):
         with open(json_file, 'r') as handle:
             return json.load(handle, object_hook=lambda d: SimpleNamespace(**d))
+
+class InterproRecord(ProteinRecord):
+    def __init__(self, header):
+        database = "interpro"
+        header = header
+
+        #split header into relevant fields
+        fields = header.split("|")
+        accession = fields[0]
+        reviewed = fields[1] == "reviewed"
+        protein_name = fields[2]
+        taxid = int(fields[3].removeprefix("taxID:"))
+
+        super().__init__(database, header, accession, reviewed, protein_name, taxid)

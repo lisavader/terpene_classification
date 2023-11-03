@@ -2,7 +2,7 @@ import argparse
 import glob
 import ast
 
-from InterproRecord import InterproRecord
+from Records import ProteinRecord
 
 def write_annotation_labels(records,file_path):
     with open(file_path,"w") as file:
@@ -30,7 +30,7 @@ def main(json_dir,annotation_labels,annotation_colours,group_by,group_colours):
     json_files = glob.glob(json_dir+"/*.json")
     records=[]
     for json_file in json_files:
-        record = InterproRecord.from_json(json_file)
+        record = ProteinRecord.from_json(json_file)
         records.append(record)
     if annotation_labels:
         write_annotation_labels(records,annotation_labels)
