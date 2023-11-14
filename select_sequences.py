@@ -30,7 +30,8 @@ if __name__ == "__main__":
     parser.add_argument("fasta_in", type=str, help="Path to fasta input file")
     parser.add_argument("fasta_out", type=str, help="Path to fasta output file")
     parser.add_argument("json_dir", type=str, help="Path to directory with metadata files in .json format")
-    parser.add_argument("query", type=str, help="A query for searching metadata, may use ==, =!, &&, || and ().")
+    parser.add_argument("query", type=str, help="A query for searching metadata, may use ==, =!, &&, || and (). "+
+                        "For example: review_status=='reviewed' && enzyme_type.contains(@,'phytoene synthase')")
     args = parser.parse_args()
     #Run the main script
     main(args.fasta_in, args.fasta_out, args.json_dir, args.query)
