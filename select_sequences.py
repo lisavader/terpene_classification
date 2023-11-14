@@ -20,8 +20,9 @@ def main(fasta_in, fasta_out, json_dir, query):
     fasta_dict = read_fasta(fasta_in)
     for header,seq in fasta_dict.items():
         if header.startswith(tuple(selected_accessions)):
-            selected_headers.append(header)
-            selected_seqs.append(seq)
+            if seq not in selected_seqs:
+                selected_headers.append(header)
+                selected_seqs.append(seq)
     write_fasta(selected_headers, selected_seqs, fasta_out)
 
 if __name__ == "__main__":
