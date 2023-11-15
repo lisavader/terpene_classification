@@ -12,7 +12,7 @@ def main(alignment_in, alignment_out, accessions, format):
     group1 = MultipleSeqAlignment([])
     group2 = MultipleSeqAlignment([])
     for row in alignment:
-        if row.id in accession_list:
+        if row.id.startswith(tuple(accession_list)):
             group1.append(row)
         else:
             group2.append(row)
