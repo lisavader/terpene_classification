@@ -6,7 +6,7 @@ from Records import ProteinRecord
 def write_metadata_summary(records, table_out):
     with open(table_out, 'w') as handle:
         writer = csv.writer(handle)
-        header = ["accession","database","protein_name","enzyme_type","organism_name","organism_division","reviewed"]
+        header = ["accession","database","protein_name","enzyme_type","organism_name","organism_category","reviewed"]
         writer.writerow(header)
         for record in records:
             row = []

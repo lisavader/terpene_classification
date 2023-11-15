@@ -39,7 +39,7 @@ class ProteinRecord:
 
         #initiate labels
         self.organism_name = ""
-        self.organism_division = ""
+        self.organism_category = ""
         self.enzyme_type = set()      #can have multiple functions
 
     def assign_taxonomic_labels(self):
@@ -48,11 +48,13 @@ class ProteinRecord:
         self.organism_name = list(taxid_translator.values())[0]     #the first taxonomic name found for this taxid
         lineage = ncbi.get_lineage(self.taxid)
         if 5204 in lineage:
-            self.organism_division = "Basidiomycota"
+            self.organism_category = "Basidiomycota"
         elif 4890 in lineage:
-            self.organism_division = "Ascomycota"
+            self.organism_category = "Ascomycota"
+        elif 2 in lineage:
+            self.organism_category = "Bacteria"
         else:
-            self.organism_division = "Other"
+            self.organism_category = "Other"
 
     def assign_enzyme_type(self):
         # Recognise terpene synthases

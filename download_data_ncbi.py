@@ -42,11 +42,11 @@ def write_metadata(seqrecord, shared_metadata, json_dir):
                                   protein_name=seqrecord.description, taxid=None)
     #add organism information
     proteinrecord.organism_name = seqrecord.annotations["organism"]
-    for division in ["Ascomycota", "Basidiomycota"]:
-        if division in seqrecord.annotations["taxonomy"]:
-            proteinrecord.organism_division = division
-        else:
-            proteinrecord.organism_division = "Other"
+    for clade in ["Ascomycota", "Basidiomycota", "Bacteria"]:
+        if clade in seqrecord.annotations["taxonomy"]:
+            proteinrecord.organism_category = clade
+            break
+        proteinrecord.organism_category = "Other"
     #add shared metadata
     if shared_metadata:
         with open(shared_metadata,"r") as file:
