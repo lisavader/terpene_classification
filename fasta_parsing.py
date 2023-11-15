@@ -1,9 +1,10 @@
 import logging
+import re
 from typing import Dict, List
 
 # These functions are (slightly) modified from AntiSMASH v.7.0.1 (antismash/antismash/common/fasta.py)
 
-def write_fasta(names: List[str], seqs: List[str], filename: str) -> None:
+def write_fasta(names: List[str], seqs: List[str], filename: str, id_only = False) -> None:
     """ Writes name/sequence pairs to file in FASTA format
 
         Argumnets:
@@ -16,8 +17,9 @@ def write_fasta(names: List[str], seqs: List[str], filename: str) -> None:
     """
     with open(filename, "w", encoding="utf-8") as out_file:
         for name, seq in zip(names, seqs):
+            if id_only == True:
+                name = re.split(r'[_,()| ]',name)[0]
             out_file.write(f">{name}\n{seq}\n")
-
 
 def read_fasta(filename: str) -> Dict[str, str]:
     """ Reads a fasta file into a dictionary
