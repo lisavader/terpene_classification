@@ -1,7 +1,5 @@
 import argparse
-import itertools
-from Bio import AlignIO, SeqIO
-from Bio.Align import MultipleSeqAlignment, SeqRecord
+from Bio import AlignIO
 
 def main(alignment_in, alignment_out, regions, format):
     alignment = AlignIO.read(alignment_in, format)
