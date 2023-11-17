@@ -11,7 +11,9 @@ def main(alignment_in, alignment_out, regions, format):
             start = start-1 #Input index starts at 1 instead of 0
             alignment_region = alignment[:, start:stop]
         else:
-            alignment_region = alignment[:, int(field)]
+            start = int(field)-1
+            stop = int(field)
+            alignment_region = alignment[:, start:stop]
         alignment_regions.append(alignment_region)
     #paste the regions together
     merged_alignment = alignment_regions[0]
