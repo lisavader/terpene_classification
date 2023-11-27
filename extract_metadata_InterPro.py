@@ -4,7 +4,8 @@ from Records import InterproRecord
 from fasta_parsing import read_fasta
 
 def curate_record(record):
-    if record.protein_name == "Aristolochene_synthase_in_complex_with_12,13_Difluorofarnesyl_diphosphate":
+    if "farnesyl_diphosphate_cyclizing" in record.protein_name.lower() or \
+    record.protein_name == "Aristolochene_synthase_in_complex_with_12,13_Difluorofarnesyl_diphosphate":
         record.enzyme_type = ["sesquiterpene synthase"]
     if "gibberellin_cluster-ggpp-synthase" in record.protein_name.lower() or record.protein_name in \
         ["Geranylgeranyl_pyrophosphate_synthetase,_putative_[includes:_dimethylallyltranstransferase_(Ec_2.5.1.1)_geranyltranstransferase_(Ec_2.5.1.10)_farnesyltranstransferas_(Ec_2.5.1.29)]",
