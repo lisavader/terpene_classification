@@ -19,7 +19,7 @@ def write_annotation_colours(records,file_path,group_by,legend_out):
         file.write("TREE_COLORS\nSEPARATOR COMMA\nDATA\n")
         for record in records:
             try:
-                attribute = getattr(record, group_by)
+                attribute = str(getattr(record, group_by))
             except AttributeError:
                 print("Error: No attribute with name '"+group_by+"' found in metadata of record "+record.accession)
                 sys.exit(1)
