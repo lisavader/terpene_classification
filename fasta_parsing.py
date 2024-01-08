@@ -4,7 +4,7 @@ from typing import Dict, List
 
 # These functions are (slightly) modified from AntiSMASH v.7.0.1 (antismash/antismash/common/fasta.py)
 
-def write_fasta(names: List[str], seqs: List[str], filename: str, id_only = False) -> None:
+def write_fasta(headers: List[str], seqs: List[str], filename: str, id_only = False) -> None:
     """ Writes name/sequence pairs to file in FASTA format
 
         Argumnets:
@@ -16,9 +16,13 @@ def write_fasta(names: List[str], seqs: List[str], filename: str, id_only = Fals
             None
     """
     with open(filename, "w", encoding="utf-8") as out_file:
-        for name, seq in zip(names, seqs):
+        for header, seq in zip(headers, seqs):
             if id_only == True:
-                name = re.split(r'[_,()| ]',name)[0]
+                match = re.search(".*\.\d",header)   #for ncbi ids
+                if match:
+                    name = match.group(0)
+                else:
+                    name = re.split(r'[_,()| ]',header)[0]  #for other ids
             out_file.write(f">{name}\n{seq}\n")
 
 def read_fasta(filename: str) -> Dict[str, str]:
