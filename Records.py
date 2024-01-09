@@ -10,7 +10,7 @@ enzyme_types = {
         "sesquiterpene" : ("sesquiterpene","sesquiterpenoid","trichodiene","trichodience","protoilludene","aristolochene","guaiadiene","germacrene"
                            ,"farnesene","viridiflorene","cuprenene","muurolene","longiborneol","presilphiperfolanol","eremophilene","cadinene"
                            ,"santalene","isozizaene","pentalenene","pristinol","isoafricanol","muurolol","cubebol","caryolanol","selinadiene"
-                           ,"linalool","eudesmol","amorphene","corvol ether","germacradienol","caryophyllene","avermitilol",),
+                           ,"linalool","eudesmol","amorphene","corvol ether","germacradienol","caryophyllene","avermitilol"),
         "diterpene" : ("diterpene","variediene","fusicoccadiene","conidiogenone","araneosene","kaurene","phomopsene","dolastadiene","aphidicolanol"
                        ,"paxilline","BcPAX1","copalyl diphosphate","gibberellin","phyllocladanol","labdatriene","cyclooctatenol","tsukubadiene",
                        "spiroviolene","pimaradiene","terpentetriene"),
@@ -22,6 +22,7 @@ enzyme_types = {
     "prenyltransferases": {
         "FPP" : ("FPP","farnesyl pyrophosphate","farnesyl diphosphate","dimethylallyltranstransferase","ERG20","geranyltranstransferase"),
         "GGPP" : ("GGPP","geranyl geranyl pyrophosphate","geranyl geranyl diphosphate","BTS1","farnesyltranstransferase"),
+        "diapophytoene" : ("diapophytoene",),
         "phytoene" : ("phytoene",),
         "squalene" : ("squalene","ERG9"),
         "HPP" : ("HPP","hexaprenyl pyrophosphate","hexaprenyl diphosphate","COQ1")
