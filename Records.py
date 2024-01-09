@@ -24,6 +24,8 @@ enzyme_types = {
         "GGPP" : ("GGPP","geranyl geranyl pyrophosphate","geranyl geranyl diphosphate","BTS1","farnesyltranstransferase"),
         "diapophytoene" : ("diapophytoene",),
         "phytoene" : ("phytoene",),
+        "presqualene PP" : ("presqualene diphosphate",),
+        "hydroxysqualene" : ("hydroxysqualene",),
         "squalene" : ("squalene","ERG9"),
         "HPP" : ("HPP","hexaprenyl pyrophosphate","hexaprenyl diphosphate","COQ1")
     }
