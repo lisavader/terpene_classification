@@ -23,6 +23,8 @@ def write_fasta(headers: List[str], seqs: List[str], filename: str, id_only = Fa
                     name = match.group(0)
                 else:
                     name = re.split(r'[_,()| ]',header)[0]  #for other ids
+            else:
+                name = header
             out_file.write(f">{name}\n{seq}\n")
 
 def read_fasta(filename: str) -> Dict[str, str]:
