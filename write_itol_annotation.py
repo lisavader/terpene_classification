@@ -5,18 +5,25 @@ import sys
 from fasta_parsing import read_fasta
 from Records import ProteinRecord
 
-def write_annotation_labels(records,file_path):
+def write_labels(records,file_path):
     with open(file_path,"w") as file:
         file.write("LABELS\nSEPARATOR COMMA\nDATA\n")
         for record in records:
             file.write(record.accession+","+record.protein_name+"\n")
 
-def write_annotation_colours(records,file_path,group_by,legend_out):
-    colour_list = ["#fd7f6f", "#7eb0d5", "#b2e061", "#bd7ebe", "#ffb55a", "#ffee65", "#beb9db", "#fdcce5", "#8bd3c7"]
-    legend = {}
-    i = 0
+def write_annotation_groups(records,file_path,group_by,annotation_type,group_values):
+    with open(group_values,"r") as file:
+        legend = json.load(file)
+
     with open(file_path,"w") as file:
-        file.write("TREE_COLORS\nSEPARATOR COMMA\nDATA\n")
+        if annotation_type == "colour":
+            file.write("TREE_COLORS\nSEPARATOR COMMA\nDATA\n")
+        elif annotation_type == "shape":
+            shapes = list(legend.values())
+            shapes_string = ",".join(shapes)
+            file.write("DATASET_BINARY\nSEPARATOR COMMA\nDATASET_LABEL,shapes\nCOLOR,#000000\nFIELD_SHAPES,"+shapes_string+
+                       "\nFIELD_LABELS,"+shapes_string+"\nSYMBOL_SPACING,-23\nDATA\n")
+
         for record in records:
             try:
                 attribute = str(getattr(record, group_by))
@@ -24,18 +31,17 @@ def write_annotation_colours(records,file_path,group_by,legend_out):
                 print("Error: No attribute with name '"+group_by+"' found in metadata of record "+record.accession)
                 sys.exit(1)
 
-            if attribute not in legend.keys():
-                colour = colour_list[i]
-                legend[attribute] = colour
-                i = i + 1
-            else:
-                colour = legend.get(attribute)
-            file.write(record.accession+","+"label_background"+","+colour+"\n")
-    if legend_out:
-        with open(legend_out,"w") as file:
-            json.dump(legend, file)
+            value = legend.get(attribute)
+            if annotation_type == "colour":
+                file.write(record.accession+","+"label_background"+","+value+"\n")
+            elif annotation_type == "shape":
+                shape_values = ["-1"] * len(shapes)
+                index = shapes.index(value)
+                shape_values[index] = "0"
+                shape_values_string = ",".join(shape_values)
+                file.write(record.accession+","+shape_values_string+"\n")
 
-def main(fasta_in,json_dir,annotation_labels,annotation_colours,group_by,legend_out):
+def main(fasta_in,json_dir,labels,group_annotation,group_by,annotation_type,group_values):
     json_files = []
     records=[]
     fasta_dict = read_fasta(fasta_in)
@@ -45,19 +51,21 @@ def main(fasta_in,json_dir,annotation_labels,annotation_colours,group_by,legend_
     for json_file in json_files:
         record = ProteinRecord.from_json(json_file)
         records.append(record)
-    write_annotation_labels(records,annotation_labels)
-    if annotation_colours:
-        write_annotation_colours(records,annotation_colours,group_by,legend_out)
+    if labels:
+        write_labels(records,labels)
+    if group_annotation:
+        write_annotation_groups(records,group_annotation,group_by,annotation_type,group_values)
 
 if __name__ == "__main__":
     #Argument parsing
     parser = argparse.ArgumentParser()
     parser.add_argument("fasta_in", type=str, help="Path to input fasta")
     parser.add_argument("json_dir", type=str, help="Path to directory with json files")
-    parser.add_argument("annotation_labels", type=str, help="Path to annotation labels output")
-    parser.add_argument("--annotation_colours", type=str, help="Path to annotation colours output")
+    parser.add_argument("--labels", type=str, help="Path to leaf labels output")
+    parser.add_argument("--group_annotation", type=str, help="Path to group annotation output")
     parser.add_argument("--group_by", type=str, help="Which attribute to use for grouping")
-    parser.add_argument("--legend_out", type=str, help="Path to legend output")
+    parser.add_argument("--annotation_type", type=str, help="The type of group annotation (choose 'colour' or 'shape')")
+    parser.add_argument("--group_values", type=str, help="Supply a json file with a colour/shape for each group.")
     args = parser.parse_args()
     #Run the main script
-    main(args.fasta_in,args.json_dir,args.annotation_labels,args.annotation_colours,args.group_by,args.legend_out)
+    main(args.fasta_in,args.json_dir,args.labels,args.group_annotation,args.group_by,args.annotation_type,args.group_values)
