@@ -17,7 +17,7 @@ def queryresult_to_df(queryresult):
     hmmer_df = pd.DataFrame.from_dict(hits)
     return hmmer_df
 
-def main(hmmfile, fasta, hmmdetails, output):
+def main(hmmfile, fasta, hmmdetails, output, correct_accessions):
     queryresult = run_hmmscan(hmmfile, fasta)
     hmmer_df = queryresult_to_df(queryresult)
     if hmmdetails:
@@ -26,6 +26,12 @@ def main(hmmfile, fasta, hmmdetails, output):
         cutoff_dict = cutoffs.to_dict()
         hmmer_df["cutoff_score"] = hmmer_df["id"].apply(lambda x: cutoff_dict.get(x))
         hmmer_df["significant"] = np.where(hmmer_df["bitscore"] >= hmmer_df["cutoff_score"], "True", "False")
+    if correct_accessions:
+        with open(correct_accessions,"r") as file:
+            accessions = []
+            for line in file:
+                accessions.append(line.rstrip())
+        hmmer_df["correct"] = hmmer_df["query_id"].isin(accessions)
     hmmer_df.to_csv(output, index=False, sep='\t')
 
 if __name__ == "__main__":
@@ -33,7 +39,9 @@ if __name__ == "__main__":
     parser.add_argument("hmmfile", type=str, help="the path to a HMM file to use in scanning")
     parser.add_argument("fasta", type=str, help="a string containing input sequences in fasta format")
     parser.add_argument("--hmmdetails", type=str, help="Optional: Path to the antiSMASH file hmmdetails.txt describing cutoffs for each profile."+
-                        "This is used to calculate if hits are 'significant' (above the cut-off)")
+                        "This is used to calculate if hits are 'significant' according to antiSMASH (above the cut-off)")
     parser.add_argument("output", type=str, help="Path to output .tsv file")
+    parser.add_argument("--correct_accessions", type=str, help="Optional: supply a file with correct accessions that are supposed"+
+                        " to be picked up by the hmmm profile(s)")
     args = parser.parse_args()
-    main(args.hmmfile, args.fasta, args.hmmdetails, args.output)
+    main(args.hmmfile, args.fasta, args.hmmdetails, args.output, args.correct_accessions)
