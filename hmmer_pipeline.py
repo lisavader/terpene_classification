@@ -17,8 +17,9 @@ def queryresult_to_df(queryresult):
     hmmer_df = pd.DataFrame.from_dict(hits)
     return hmmer_df
 
-def main(hmmfile, fasta, hmmdetails, output, correct_accessions):
-    queryresult = run_hmmscan(hmmfile, fasta)
+def main(hmmfile, fasta, hmmdetails, output, correct_accessions, opts):
+    opts_list = opts.split(',')
+    queryresult = run_hmmscan(hmmfile, fasta, opts_list)
     hmmer_df = queryresult_to_df(queryresult)
     if hmmdetails:
         details = pd.read_csv(hmmdetails, delimiter='\t', header=None, index_col=0)
@@ -43,5 +44,6 @@ if __name__ == "__main__":
     parser.add_argument("output", type=str, help="Path to output .tsv file")
     parser.add_argument("--correct_accessions", type=str, help="Optional: supply a file with correct accessions that are supposed"+
                         " to be picked up by the hmmm profile(s)")
+    parser.add_argument("--opts", type=str, help="Add options to hmmscan (as string where fields are separated by commas)")
     args = parser.parse_args()
-    main(args.hmmfile, args.fasta, args.hmmdetails, args.output, args.correct_accessions)
+    main(args.hmmfile, args.fasta, args.hmmdetails, args.output, args.correct_accessions, args.opts)
