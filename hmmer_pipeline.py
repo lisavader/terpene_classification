@@ -18,7 +18,10 @@ def queryresult_to_df(queryresult):
     return hmmer_df
 
 def main(hmmfile, fasta, hmmdetails, output, correct_accessions, opts):
-    opts_list = opts.split(',')
+    if opts:
+        opts_list = opts.split(',')
+    else:
+        opts_list = None
     queryresult = run_hmmscan(hmmfile, fasta, opts_list)
     hmmer_df = queryresult_to_df(queryresult)
     if hmmdetails:
