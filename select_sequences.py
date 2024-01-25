@@ -1,23 +1,31 @@
 import argparse
-import glob
 import json
 import jmespath
+import re
 
 from fasta_parsing import read_fasta, write_fasta
 
 def main(fasta_in, fasta_out, json_dir, query, id_only):
-    json_files = glob.glob(json_dir+"/*.json")
     selected_accessions = []
-    for json_file in json_files:
+    fasta_dict = read_fasta(fasta_in)
+    for header in fasta_dict.keys():
+        match = re.search(".*?\.\d",header)   #for ncbi ids
+        if match:
+            accession = match.group(0)
+        else:
+            accession = re.split(r'[_,()| ]',header)[0]  #for other ids
+        json_file = json_dir+accession+".json"
+
         with open(json_file) as f:
             json_object = json.load(f)
         found = jmespath.search(query, data=json_object)
+        print(json_file, found)
         if found:
             accession = jmespath.search("accession", data=json_object)
             selected_accessions.append(accession)
     selected_headers = []
     selected_seqs = []
-    fasta_dict = read_fasta(fasta_in)
+
     for header,seq in fasta_dict.items():
         if header.startswith(tuple(selected_accessions)):
             if seq not in selected_seqs:
