@@ -31,6 +31,8 @@ def write_annotation_groups(records,file_path,group_by,annotation_type,group_val
                 print("Error: No attribute with name '"+group_by+"' found in metadata of record "+record.accession)
                 pass
 
+            if type(attribute) == list:
+                attribute = str(attribute)
             try:
                 value = legend[attribute]
             except KeyError:
