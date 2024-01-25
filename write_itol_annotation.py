@@ -29,15 +29,13 @@ def write_annotation_groups(records,file_path,group_by,annotation_type,group_val
                 attribute = getattr(record, group_by)
             except AttributeError:
                 print("Error: No attribute with name '"+group_by+"' found in metadata of record "+record.accession)
-                sys.exit(1)
-            if type(attribute) == list: #take first element in case it's a list
-                attribute = attribute[0]
+                pass
 
             try:
                 value = legend[attribute]
             except KeyError:
                 print("Error: Attribute \'"+attribute+"\' of record "+record.accession+" not found in group_values file.")
-                sys.exit(1)
+                continue
 
             if annotation_type == "colour":
                 file.write(record.accession+","+"label_background"+","+value+"\n")
