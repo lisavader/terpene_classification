@@ -27,7 +27,7 @@ def main(data_in, json_dir):
             line = line.strip('\n')
             fields = line.split('\t')
             metadata = dict(zip(column_names,fields))
-            metadata["enzyme_type"] = metadata["enzyme_type"].split(',')    #convert to list
+            metadata["enzyme_type"] = metadata["enzyme_type"].replace("\"","").split(', ')    #convert to list
             update_json(metadata, json_dir)
 
 if __name__ == "__main__":
