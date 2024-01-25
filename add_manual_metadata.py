@@ -15,7 +15,7 @@ def update_json(metadata, json_dir):
         if value:
             data[key] = value
         else:
-            data[key] = None
+            data[key] = "none"
     with open(file_path,"w") as file:
         json.dump(data, file, default=lambda o: o.__dict__, indent=4)
 
