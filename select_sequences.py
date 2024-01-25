@@ -19,7 +19,6 @@ def main(fasta_in, fasta_out, json_dir, query, id_only):
         with open(json_file) as f:
             json_object = json.load(f)
         found = jmespath.search(query, data=json_object)
-        print(json_file, found)
         if found:
             accession = jmespath.search("accession", data=json_object)
             selected_accessions.append(accession)
@@ -31,6 +30,8 @@ def main(fasta_in, fasta_out, json_dir, query, id_only):
             if seq not in selected_seqs:
                 selected_headers.append(header)
                 selected_seqs.append(seq)
+            else:
+                print("Skipped duplicate sequence: ",header)
     write_fasta(selected_headers, selected_seqs, fasta_out, id_only)
 
 if __name__ == "__main__":
