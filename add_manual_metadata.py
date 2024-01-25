@@ -4,8 +4,13 @@ from Records import ProteinRecord
 
 def update_json(metadata, json_dir):
     file_path = json_dir+metadata["accession"]+".json"
-    with open(file_path, 'r') as file:
-        data = json.load(file)
+    try:
+        with open(file_path, 'r') as file:
+            data = json.load(file)
+    except FileNotFoundError:
+        print("File "+file_path+" not found!\nCreating .json file at "+file_path)
+        data = {}
+        data["accession"] = metadata["accession"]
     for key, value in list(metadata.items())[1:]:
         if value:
             data[key] = value
