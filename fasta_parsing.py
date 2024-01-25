@@ -18,7 +18,7 @@ def write_fasta(headers: List[str], seqs: List[str], filename: str, id_only = Fa
     with open(filename, "w", encoding="utf-8") as out_file:
         for header, seq in zip(headers, seqs):
             if id_only == True:
-                match = re.search(".*\.\d",header)   #for ncbi ids
+                match = re.search(".*?\.\d",header)   #for ncbi ids
                 if match:
                     name = match.group(0)
                 else:
