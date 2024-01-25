@@ -44,7 +44,7 @@ def write_annotation_groups(records,file_path,group_by,annotation_type,group_val
             elif annotation_type == "shape":
                 shape_values = ["-1"] * len(shapes)
                 index = shapes.index(value)
-                shape_values[index] = "0"
+                shape_values[index] = "1"
                 shape_values_string = ",".join(shape_values)
                 file.write(record.accession+","+shape_values_string+"\n")
 
