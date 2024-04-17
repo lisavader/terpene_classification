@@ -35,7 +35,7 @@ def download_genbank(accession):
 
     return genbank_string
 
-def write_metadata(seqrecord, shared_metadata, json_dir):
+def write_metadata(seqrecord, enzyme_type, json_dir):
     database = "ncbi"
     header = seqrecord.id+" "+seqrecord.description
     proteinrecord = ProteinRecord(database=database, header=header, accession=seqrecord.id, reviewed=None,
@@ -47,42 +47,38 @@ def write_metadata(seqrecord, shared_metadata, json_dir):
             proteinrecord.organism_category = clade
             break
         proteinrecord.organism_category = "Other"
-    #add shared metadata
-    if shared_metadata:
-        with open(shared_metadata,"r") as file:
-            metadata_dict = json.load(file)
-        for attribute, value in metadata_dict.items():
-            setattr(proteinrecord, attribute, value)
-    #assign enzyme type
-    if not proteinrecord.enzyme_type:
-        proteinrecord.assign_enzyme_type()
+    #add enzyme type
+    proteinrecord.enzyme_type = enzyme_type
+    #all manually added sequences are reviewed
+    proteinrecord.reviewed = True
     #store ProteinRecord object as json
     file_path = json_dir+"/"+proteinrecord.accession+".json"
     json_object = proteinrecord.to_json()
     with open(file_path,"w") as file:
         file.write(json_object)
 
-def main(accessions, fasta_out, json_dir, shared_metadata):
-    with open(accessions,"r") as file:
-        accessions = []
-        for line in file:
-            accessions.append(line.rstrip())
+def main(ncbi_file, fasta_out, json_dir):
+    accessions = {}
     seqrecords = []
-    for accession in accessions:
+    with open(ncbi_file,"r") as file:
+        next(file)  #skip header
+        for line in file:
+            accession, enzyme_type = line.split('\t')[0:2]
+            accessions[accession] = enzyme_type
+    for accession, enzyme_type in accessions.items():
         genbank_string = download_genbank(accession)
         seqrecord = SeqIO.read(StringIO(genbank_string), format="gb")
+        write_metadata(seqrecord, enzyme_type, json_dir)
         seqrecords.append(seqrecord)
-        write_metadata(seqrecord, shared_metadata, json_dir)
     with open(fasta_out,"w") as output_file:
         SeqIO.write(seqrecords, output_file, "fasta")
 
 if __name__ == "__main__":
     #Argument parsing
     parser = argparse.ArgumentParser()
-    parser.add_argument("accessions", type=str, help="File with ncbi protein or nucleotide accessions, separated by new line")
+    parser.add_argument("ncbi_file", type=str, help="Tsv file with ncbi protein or nucleotide accessions in first column, enzyme type in second column")
     parser.add_argument("fasta_out", type=str, help="File to output fasta files")
     parser.add_argument("json_dir", type=str, help="Path to json directory for storing metadata")
-    parser.add_argument("shared_metadata", type=str, nargs='?', default=None, help="Optional: Metadata that is shared between all sequences, in json format.")
     args = parser.parse_args()
     #Run the main script
-    main(args.accessions, args.fasta_out, args.json_dir, args.shared_metadata)
+    main(**vars(args))
