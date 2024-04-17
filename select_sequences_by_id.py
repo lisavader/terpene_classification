@@ -20,7 +20,7 @@ def main(fasta_in, fasta_out, accessions, exclude, id_only):
         if selected == True and seq not in selected_seqs:
             selected_headers.append(header)
             selected_seqs.append(seq)
-        else:
+        elif seq in selected_seqs:
             print("Skipped duplicate sequence: ",header)
     write_fasta(selected_headers, selected_seqs, fasta_out, id_only)
 
