@@ -1,8 +1,7 @@
 import argparse
 import urllib
-import json
 from bs4 import BeautifulSoup
-from Bio import Entrez, GenBank, SeqIO
+from Bio import Entrez, SeqIO
 from io import StringIO
 
 from Records import ProteinRecord
