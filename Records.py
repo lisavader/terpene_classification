@@ -119,3 +119,16 @@ class InterproRecord(ProteinRecord):
         taxid = int(fields[3].removeprefix("taxID:"))
 
         super().__init__(database, header, accession, reviewed, protein_name, taxid)
+
+class UniProtRecord(ProteinRecord):
+    def __init__(self, header):
+        database = "uniprot"
+        header = header
+
+        #split header into relevant fields
+        fields = re.split("\||_OS=|_OX=|_GN=", header)
+        reviewed = fields[0] == "sp"
+        accession = fields[1]
+        protein_name = fields[2]
+        taxid = int(fields[4])
+        super().__init__(database, header, accession, reviewed, protein_name, taxid)
