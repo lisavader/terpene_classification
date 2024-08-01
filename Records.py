@@ -78,13 +78,19 @@ class ProteinRecord:
                     if match:
                         self.enzyme_type.add(terpene_type+" synthase")
 
-        # Recognise prenyltransferases
-        for pt_type, pt_names in enzyme_types["prenyltransferases"].items():
-            for pt_name in pt_names:
-                pattern = pt_name.replace(" ","[_-]?")
-                match = re.search(pattern, self.protein_name, flags=re.IGNORECASE)
-                if match:
-                    self.enzyme_type.add(pt_type+" synthase")
+            # Recognise prenyltransferases
+            class Found(Exception): pass
+            try:
+                for pt_type, pt_names in enzyme_types["prenyltransferases"].items():
+                    for pt_name in pt_names:
+                        #In the protein name, spaces are replaced by an underscore or hyphen
+                        pattern = pt_name.replace(" ","[_-]?")
+                        match = re.search(pattern, self.protein_name, flags=re.IGNORECASE)
+                        if match:
+                            self.enzyme_type.add(pt_type+" synthase")
+                            raise Found   #can only be one category
+            except Found:
+                pass
 
         if not self.reviewed or not self.enzyme_type:
             self.enzyme_type.add("unknown")
