@@ -18,11 +18,11 @@ def write_fasta(headers: List[str], seqs: List[str], filename: str, id_only = Fa
     with open(filename, "w", encoding="utf-8") as out_file:
         for header, seq in zip(headers, seqs):
             if id_only == True:
-                match = re.search(".*?\.\d",header)   #for ncbi ids
-                if match:
-                    name = match.group(0)
+                header = re.sub("tr\||sp\|", "", header)
+                if "WP_" in header or "XP_" in header:
+                    name = '_'.join(re.split(r'[_,()| ]',header)[:2])
                 else:
-                    name = re.split(r'[_,()| ]',header)[0]  #for other ids
+                    name = re.split(r'[_,()| ]',header)[0]
             else:
                 name = header
             out_file.write(f">{name}\n{seq}\n")
