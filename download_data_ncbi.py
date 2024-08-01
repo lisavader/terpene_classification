@@ -48,7 +48,7 @@ def write_metadata(seqrecord, enzyme_type, json_dir):
         proteinrecord.organism_category = "Other"
     #add enzyme type
     if not enzyme_type == "none":
-        proteinrecord.enzyme_type = enzyme_type.split(",")
+        proteinrecord.enzyme_type = enzyme_type.rstrip().split(", ")
     else:
         proteinrecord.enzyme_type = None
     #all manually added sequences are reviewed
