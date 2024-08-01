@@ -18,7 +18,7 @@ def update_json(metadata, json_dir):
         json.dump(data, file, default=lambda o: o.__dict__, indent=4)
 
 def main(data_in, json_dir):
-    with open(data_in, "r", encoding='utf-16') as csv_file:
+    with open(data_in, "r", encoding='utf-8') as csv_file:
         header = next(csv_file)
         column_names = header.strip('\n').split('\t')
         for line in csv_file:
