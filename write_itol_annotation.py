@@ -1,17 +1,18 @@
 import argparse
 import json
-import sys
+import os
 
 from fasta_parsing import read_fasta
 from Records import ProteinRecord
 
-def write_labels(records,file_path):
+def write_labels(json_files,file_path):
     with open(file_path,"w") as file:
         file.write("LABELS\nSEPARATOR COMMA\nDATA\n")
-        for record in records:
-            file.write(record.accession+","+record.protein_name+"\n")
+        for accession, json_file in json_files.items():
+            record = ProteinRecord.from_json(json_file)
+            file.write(accession+","+record.protein_name+"\n")
 
-def write_annotation_groups(records,file_path,group_by,annotation_type,group_values,shapes_offset):
+def write_annotation_groups(json_files,file_path,group_by,annotation_type,group_values,shapes_offset):
     with open(group_values,"r") as file:
         legend = json.load(file)
 
@@ -26,19 +27,20 @@ def write_annotation_groups(records,file_path,group_by,annotation_type,group_val
             file.write("DATASET_BINARY\nSEPARATOR COMMA\nDATASET_LABEL,shapes\nCOLOR,#000000\nFIELD_SHAPES,"+shapes_string+
                        "\nFIELD_LABELS,"+shapes_string+"\nSYMBOL_SPACING, "+str(shapes_offset)+"\nDATA\n")
 
-        for record in records:
+        for accession, json_file in json_files.items():
+            record = ProteinRecord.from_json(json_file)
             try:
                 attribute = getattr(record, group_by)
             except AttributeError:
-                print("Error: No attribute with name '"+group_by+"' found in metadata of record "+record.accession)
-                pass
+                print("Error: No attribute with name '"+group_by+"' found in metadata of record "+accession)
+                continue
 
             if type(attribute) == list:
                 attribute = str(attribute)
             try:
                 value = legend[attribute]
             except KeyError:
-                print("Error: Attribute \'"+attribute+"\' of record "+record.accession+" not found in group_values file.")
+                print("Error: Attribute \'"+str(attribute)+"\' of record "+accession+" not found in group_values file.")
                 continue
 
             if annotation_type == "colour":
@@ -48,24 +50,24 @@ def write_annotation_groups(records,file_path,group_by,annotation_type,group_val
             elif annotation_type == "shape":
                 shape_values = ["-1"] * len(shapes)
                 index = shapes.index(value)
-                shape_values[index] = "1"
+                shape_values[index] = "0"
                 shape_values_string = ",".join(shape_values)
-                file.write(record.accession+","+shape_values_string+"\n")
+                file.write(accession+","+shape_values_string+"\n")
 
 def main(fasta_in,json_dir,labels,group_annotation,group_by,annotation_type,group_values,shapes_offset):
-    json_files = []
-    records=[]
+    json_files = {}
     fasta_dict = read_fasta(fasta_in)
     for header in fasta_dict.keys():
-        json_file = json_dir+header+".json"
-        json_files.append(json_file)
-    for json_file in json_files:
-        record = ProteinRecord.from_json(json_file)
-        records.append(record)
+        if os.path.isfile(json_dir+header+".json"):
+            json_file = json_dir+header+".json"
+        else:
+            json_file = json_dir+header[2:]+".json"
+        accession = header
+        json_files[accession] = json_file
     if labels:
-        write_labels(records,labels)
+        write_labels(json_files,labels)
     if group_annotation:
-        write_annotation_groups(records,group_annotation,group_by,annotation_type,group_values,shapes_offset)
+        write_annotation_groups(json_files,group_annotation,group_by,annotation_type,group_values,shapes_offset)
 
 if __name__ == "__main__":
     #Argument parsing
