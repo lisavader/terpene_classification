@@ -10,10 +10,11 @@ enzyme_types = {
         "sesquiterpene" : ("sesquiterpene","sesquiterpenoid","trichodiene","trichodience","protoilludene","aristolochene","guaiadiene","germacrene"
                            ,"farnesene","viridiflorene","cuprenene","muurolene","longiborneol","presilphiperfolanol","eremophilene","cadinene"
                            ,"santalene","isozizaene","pentalenene","pristinol","isoafricanol","muurolol","cubebol","caryolanol","selinadiene"
-                           ,"linalool","eudesmol","amorphene","corvol ether","germacradienol","caryophyllene","avermitilol"),
+                           ,"linalool","eudesmol","amorphene","corvol ether","germacradienol","caryophyllene","avermitilol","hedycaryol","AneC"
+                           ,"silphinene", "Agr4","Cop4","FlvE","BraA"),
         "diterpene" : ("diterpene","variediene","fusicoccadiene","conidiogenone","araneosene","kaurene","phomopsene","dolastadiene","aphidicolanol"
                        ,"paxilline","BcPAX1","copalyl diphosphate","gibberellin","phyllocladanol","labdatriene","cyclooctatenol","tsukubadiene",
-                       "spiroviolene","pimaradiene","terpentetriene"),
+                       "spiroviolene","pimaradiene","terpentetriene","hydropyrene","ATR13"),
         "sesterterpene" : ("sesterterpene","ophiobolin","preasperterpenoid","preaspterpenacid","stellatatriene","astellifadiene","quiannulatene"
                            ,"sesterbrasiliatriene","sesterfisherol","preterpestacin","aspergildiene","fusoxypene"),
         "triterpene" : ("triterpene","macrophomene","talaropentaene"),
@@ -22,8 +23,9 @@ enzyme_types = {
     "prenyltransferases": {
         "FPP" : ("FPP","farnesyl pyrophosphate","farnesyl diphosphate","dimethylallyltranstransferase","ERG20","geranyltranstransferase"),
         "GGPP" : ("GGPP","geranyl geranyl pyrophosphate","geranyl geranyl diphosphate","BTS1","farnesyltranstransferase"),
+        "3-GGI" : ("JanC", "PenC", "PtmC", "NodC","IdtC","TerC","PaxC"),
         "diapophytoene" : ("diapophytoene",),
-        "phytoene" : ("phytoene",),
+        "phytoene" : ("phytoene", "CrtB"),
         "presqualene PP" : ("presqualene diphosphate",),
         "hydroxysqualene" : ("hydroxysqualene",),
         "squalene" : ("squalene","ERG9"),
