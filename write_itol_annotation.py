@@ -18,6 +18,8 @@ def write_annotation_groups(records,file_path,group_by,annotation_type,group_val
     with open(file_path,"w") as file:
         if annotation_type == "colour":
             file.write("TREE_COLORS\nSEPARATOR COMMA\nDATA\n")
+        elif annotation_type == "colour_strip":
+            file.write("DATASET_COLORSTRIP\nSEPARATOR COMMA\nDATASET_LABEL,colour_strip\nCOLOR,#000000\nDATA\n")
         elif annotation_type == "shape":
             shapes = list(legend.values())
             shapes_string = ",".join(shapes)
@@ -40,7 +42,9 @@ def write_annotation_groups(records,file_path,group_by,annotation_type,group_val
                 continue
 
             if annotation_type == "colour":
-                file.write(record.accession+","+"label_background"+","+value+"\n")
+                file.write(accession+","+"label_background"+","+value+"\n")
+            elif annotation_type == "colour_strip":
+                file.write(accession+","+value+"\n")
             elif annotation_type == "shape":
                 shape_values = ["-1"] * len(shapes)
                 index = shapes.index(value)
