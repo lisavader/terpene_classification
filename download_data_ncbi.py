@@ -41,7 +41,7 @@ def write_metadata(seqrecord, enzyme_type, json_dir):
                                   protein_name=seqrecord.description, taxid=None)
     #add organism information
     proteinrecord.organism_name = seqrecord.annotations["organism"]
-    for clade in ["Ascomycota", "Basidiomycota", "Bacteria"]:
+    for clade in ["Ascomycota", "Basidiomycota", "Bacteria", "Viridiplantae"]:
         if clade in seqrecord.annotations["taxonomy"]:
             proteinrecord.organism_category = clade
             break
