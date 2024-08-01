@@ -22,6 +22,7 @@ def main(fasta_in, fasta_out, tree_in, cut_off, tree_format):
             if seq not in selected_seqs:
                 selected_headers.append(header)
                 selected_seqs.append(seq)
+    print("Removed "+str(len(duplicates))+" sequences.")
     write_fasta(selected_headers, selected_seqs, fasta_out)
 
 if __name__ == "__main__":
