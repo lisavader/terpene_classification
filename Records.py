@@ -64,18 +64,19 @@ class ProteinRecord:
             self.organism_category = "Other"
 
     def assign_enzyme_type(self):
-        # Recognise terpene synthases
-        for terpene_type, terpene_names in enzyme_types["terpenes"].items():
-            for terpene_name in terpene_names:
-                #spaces between words are replaced by an underscore or hyphen
-                pattern = terpene_name.replace(" ","[_-]?")
-                #compound suffixes -diene, -ene and -ol can be preceded by structural denotions between hyphens, e.g. dolasta-1(15),8-diene
-                for suffix in ["diene","ene","ol"]:
-                    if pattern.endswith(suffix):
-                        pattern = re.sub(suffix, "(-.*-)?"+suffix, pattern)
-                match = re.search(pattern, self.protein_name, flags=re.IGNORECASE)
-                if match:
-                    self.enzyme_type.add(terpene_type+" synthase")
+        if self.reviewed:
+            # Recognise terpene synthases
+            for terpene_type, terpene_names in enzyme_types["terpenes"].items():
+                for terpene_name in terpene_names:
+                    #In the protein name, spaces are replaced by an underscore or hyphen
+                    pattern = terpene_name.replace(" ","[_-]?")
+                    #compound suffixes -triene, -diene, -ene, -en and -ol can be preceded by structural denotions between hyphens, e.g. dolasta-1(15),8-diene
+                    for suffix in ["triene","diene","ene","en","ol"]:
+                        if suffix in pattern:
+                            pattern = re.sub(suffix, "(-.*-)?"+suffix, pattern)
+                    match = re.search(pattern, self.protein_name, flags=re.IGNORECASE)
+                    if match:
+                        self.enzyme_type.add(terpene_type+" synthase")
 
         # Recognise prenyltransferases
         for pt_type, pt_names in enzyme_types["prenyltransferases"].items():
@@ -85,7 +86,7 @@ class ProteinRecord:
                 if match:
                     self.enzyme_type.add(pt_type+" synthase")
 
-        if not self.enzyme_type:
+        if not self.reviewed or not self.enzyme_type:
             self.enzyme_type.add("unknown")
 
         # Convert set to list (for compatibility with json)
