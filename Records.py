@@ -58,6 +58,8 @@ class ProteinRecord:
             self.organism_category = "Ascomycota"
         elif 2 in lineage:
             self.organism_category = "Bacteria"
+        elif 33090 in lineage:
+            self.organism_category = "Viridiplantae"
         else:
             self.organism_category = "Other"
 
