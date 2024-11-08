@@ -68,7 +68,7 @@ if __name__ == "__main__":
     parser.add_argument("accessions_path", type=str, help="Path to text files with accessions with which to build a hmm. May contain wildcards.")
     parser.add_argument("hmm_dir", type=str, help="Directory for storing the hmm files")
     parser.add_argument("fasta", type=str, help="Fasta file that contains the sequences for each accession")
-    parser.add_argument("--leave_one_out", action="store_true", help="Build additional hmms with one of the sequences left out.")
+    parser.add_argument("-l", "--leave_one_out", action="store_true", help="Build additional hmms with one of the sequences left out.")
     parser.add_argument("-v", "--verbose", action="store_const", dest="loglevel", const=logging.INFO, help="Enable verbose mode")
     parser.add_argument("-f", "--force", action="store_true", help="Overwrite existing files")
     args = parser.parse_args()
