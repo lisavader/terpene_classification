@@ -22,6 +22,9 @@ def main(accessions_path, hmm_dir, fasta, leave_one_out, force):
             for header,seq in fasta_dict.items():
                 if header == accession:
                     sequences[header] = seq
+        if len(sequences) != len(accessions):
+            logging.warning(f"Skipping {hmm_name} and all LOO hmms; {str(len(accessions))} sequences are required but only {str(len(sequences))} found.")
+            continue
         build_hmm(sequences, hmm_dir, hmm_name, force)
 
         #Build leave-one-out hmms
