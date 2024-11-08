@@ -1,7 +1,6 @@
 import argparse
 import glob
 import os
-import statistics
 from collections import defaultdict
 from subprocess import Popen, PIPE
 from io import StringIO
@@ -9,7 +8,7 @@ from Bio import SearchIO
 
 from fasta_parsing import read_fasta
 
-def main(hmm_database, fasta, accessions_dir, scores_out, stats_out):
+def main(hmm_database, fasta, accessions_path, scores_out):
     accessions_all = read_fasta(fasta).keys()
     hmmscan_results = run_hmmscan(hmm_database, fasta)
 
@@ -55,18 +54,6 @@ def main(hmm_database, fasta, accessions_dir, scores_out, stats_out):
             for query, bitscores in all_results[hmm_profile].items():
                 stream.write('\t'.join([hmm_profile, query, ','.join(map(str, bitscores))])+'\n')
 
-    with open(stats_out, 'w') as stream:
-        stream.write('\t'.join(["hmm", "median_in", "min_in", "max_in", "median_out", "min_out", "max_out", "proposed_cutoff"])+'\n')
-        for hmm_name in grouped_results:
-            median_in = statistics.median(grouped_results[hmm_name]["ingroup"])
-            min_in = min(grouped_results[hmm_name]["ingroup"])
-            max_in = max(grouped_results[hmm_name]["ingroup"])
-            median_out = statistics.median(grouped_results[hmm_name]["outgroup"])
-            min_out = min(grouped_results[hmm_name]["outgroup"])
-            max_out = max(grouped_results[hmm_name]["outgroup"])
-            proposed_cutoff = int(statistics.mean([min_in, max_out]))
-            stream.write('\t'.join(map(str,[hmm_name, median_in, min_in, max_in, median_out, min_out, max_out, proposed_cutoff]))+'\n')
-
 def run_hmmscan(hmm_database, fasta):
     proc = Popen(["hmmscan", "--noali", "--domT", "0", hmm_database, fasta], stdout=PIPE)
     hmmscan_out = proc.communicate()[0].decode()
@@ -80,7 +67,6 @@ if __name__ == "__main__":
     parser.add_argument("fasta", type=str, help="Fast file with (full-length) input sequences")
     parser.add_argument("accessions_dir", type=str, help="Directory with accessions per hmm")
     parser.add_argument("scores_out", type=str, help="Output file containing all bitscores")
-    parser.add_argument("stats_out", type=str, help="Output file with bitscore statistics per hmm profile")
     args = parser.parse_args()
     #Run the main script
     main(**vars(args))
