@@ -2,6 +2,7 @@ import argparse
 import glob
 import os
 import re
+import logging
 from collections import defaultdict
 from subprocess import Popen, PIPE
 from io import StringIO
@@ -10,6 +11,7 @@ from Bio import SearchIO
 from fasta_parsing import read_fasta
 
 def main(hmm_database, fasta, accessions_path, scores_out):
+    logging.info("Processing accessions...")
     accessions_all = read_fasta(fasta).keys()
     hmms_accessions = defaultdict(lambda: defaultdict(dict))
 
@@ -27,8 +29,10 @@ def main(hmm_database, fasta, accessions_path, scores_out):
         hmms_accessions[hmm_name]["accessions_in"] = accessions_in
         hmms_accessions[hmm_name]["accessions_out"] = accessions_out
 
+    logging.info(f"Running hmmscan with sequences {fasta} on hmm database {hmm_database}...")
     hmmscan_results = run_hmmscan(hmm_database, fasta)
 
+    logging.info("Processing hmmscan results...")
     all_results = defaultdict(dict)
     for result in hmmscan_results:
         for hsp in result.hsps:
@@ -57,6 +61,7 @@ def main(hmm_database, fasta, accessions_path, scores_out):
             scores_per_hmm[hmm_name][accession]["score"] = topscore
             scores_per_hmm[hmm_name][accession]["ingroup"] = False
 
+    logging.info(f"Writing out scores to {scores_out}...")
     with open(scores_out, 'w') as stream:
         stream.write('\t'.join(["hmm_profile", "accession", "score", "ingroup"])+'\n')
         for hmm_name in scores_per_hmm:
@@ -78,6 +83,8 @@ if __name__ == "__main__":
     parser.add_argument("fasta", type=str, help="Fasta file with (full-length) input sequences")
     parser.add_argument("accessions_path", type=str, help="Path to text files with accessions with which to build a hmm. May contain wildcards.")
     parser.add_argument("scores_out", type=str, help="Output file containing the top bitscores for each hmm")
+    parser.add_argument("-v", "--verbose", action="store_const", dest="loglevel", const=logging.INFO, help="Enable verbose mode")
     args = parser.parse_args()
+    logging.basicConfig(level=args.loglevel)
     #Run the main script
-    main(**vars(args))
+    main(args.hmm_database, args.fasta, args.accessions_path, args.scores_out)
