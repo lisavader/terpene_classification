@@ -1,6 +1,7 @@
 import argparse
 import glob
 import os
+import re
 from collections import defaultdict
 from subprocess import Popen, PIPE
 from io import StringIO
@@ -10,6 +11,22 @@ from fasta_parsing import read_fasta
 
 def main(hmm_database, fasta, accessions_path, scores_out):
     accessions_all = read_fasta(fasta).keys()
+    hmms_accessions = defaultdict(lambda: defaultdict(dict))
+
+    for accessions_file in glob.glob(accessions_path):
+        hmm_name = os.path.splitext(os.path.basename(accessions_file))[0]
+        with open(accessions_file,"r") as stream:
+            accessions_in = set()
+            for line in stream:
+                accession = re.sub("C-|N-","",line.rstrip())
+                assert accession in accessions_all, f"Accession {accession} in {accessions_file} is not present in fasta file {fasta}"
+                accessions_in.add(accession)
+
+        accessions_out = list(set(accessions_all) - accessions_in)
+        accessions_in = list(accessions_in)
+        hmms_accessions[hmm_name]["accessions_in"] = accessions_in
+        hmms_accessions[hmm_name]["accessions_out"] = accessions_out
+
     hmmscan_results = run_hmmscan(hmm_database, fasta)
 
     all_results = defaultdict(dict)
@@ -20,39 +37,33 @@ def main(hmm_database, fasta, accessions_path, scores_out):
             except:
                 all_results[hsp.hit_id][hsp.query_id] = [hsp.bitscore]
 
-    grouped_results = defaultdict(dict)
-    for accessions_file in glob.glob(os.path.join(accessions_dir,"*")):
-        hmm_name = os.path.basename(accessions_file).strip(".txt")
-        with open(accessions_file,"r") as stream:
-            accessions_in = []
-            for line in stream:
-                accessions_in.append(line.rstrip())
-        accessions_out = list(set(accessions_all) - set(accessions_in))
-
-        grouped_results[hmm_name] = {
-            "ingroup": [],
-            "outgroup": []
-        }
-        for accession in accessions_in:
+    scores_per_hmm = defaultdict(lambda: defaultdict(dict))
+    for hmm_name in hmms_accessions:
+        for accession in hmms_accessions[hmm_name]["accessions_in"]:
             try:
                 #Retrieve best score for hmm with the in_group sequence left out
                 topscore = max(all_results[hmm_name+"_"+accession][accession])
             except:
                 topscore = 0
-            grouped_results[hmm_name]["ingroup"].append(topscore)
-        for accession in accessions_out:
+            scores_per_hmm[hmm_name][accession]["score"] = topscore
+            scores_per_hmm[hmm_name][accession]["ingroup"] = True
+
+        for accession in hmms_accessions[hmm_name]["accessions_out"]:
             try:
                 #Retrieve best score for the general hmm
                 topscore = max(all_results[hmm_name][accession])
             except:
                 topscore = 0
-            grouped_results[hmm_name]["outgroup"].append(topscore)
+            scores_per_hmm[hmm_name][accession]["score"] = topscore
+            scores_per_hmm[hmm_name][accession]["ingroup"] = False
 
     with open(scores_out, 'w') as stream:
-        stream.write('\t'.join(["hmm_profile", "sequence", "bitscores"])+'\n')
-        for hmm_profile in all_results:
-            for query, bitscores in all_results[hmm_profile].items():
-                stream.write('\t'.join([hmm_profile, query, ','.join(map(str, bitscores))])+'\n')
+        stream.write('\t'.join(["hmm_profile", "accession", "score", "ingroup"])+'\n')
+        for hmm_name in scores_per_hmm:
+            for accession in scores_per_hmm[hmm_name]:
+                score = scores_per_hmm[hmm_name][accession]["score"]
+                ingroup = scores_per_hmm[hmm_name][accession]["ingroup"]
+                stream.write('\t'.join(map(str,[hmm_name, accession, score, ingroup]))+'\n')
 
 def run_hmmscan(hmm_database, fasta):
     proc = Popen(["hmmscan", "--noali", "--domT", "0", hmm_database, fasta], stdout=PIPE)
