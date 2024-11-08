@@ -9,8 +9,8 @@ from fasta_parsing import read_fasta
 
 def main(accessions_path, hmm_dir, fasta, leave_one_out, force):
     fasta_dict = read_fasta(fasta)
-    for accessions_file in glob.glob(os.path.join(accessions_dir,"*")):
-        hmm_name = os.path.basename(accessions_file).strip(".txt")
+    for accessions_file in glob.glob(accessions_path):
+        hmm_name = os.path.splitext(os.path.basename(accessions_file))[0]
         with open(accessions_file,"r") as stream:
             accessions = []
             for line in stream:
@@ -62,7 +62,7 @@ def run_hmmbuild(alignment, hmm_name, hmm_file):
 if __name__ == "__main__":
     #Argument parsing
     parser = argparse.ArgumentParser()
-    parser.add_argument("accessions_dir", type=str, help="Directory that contains text files with accessions with which to build a hmm.")
+    parser.add_argument("accessions_path", type=str, help="Path to text files with accessions with which to build a hmm. May contain wildcards.")
     parser.add_argument("hmm_dir", type=str, help="Directory for storing the hmm files")
     parser.add_argument("fasta", type=str, help="Fasta file that contains the sequences for each accession")
     parser.add_argument("--leave_one_out", action="store_true", help="Build additional hmms with one of the sequences left out.")
