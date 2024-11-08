@@ -2,6 +2,7 @@ import argparse
 import glob
 import os
 import logging
+import re
 from subprocess import Popen, PIPE
 
 from fasta_parsing import read_fasta
@@ -25,10 +26,13 @@ def main(accessions_dir, hmm_dir, fasta, leave_one_out):
 
         #Build leave-one-out hmms
         if leave_one_out:
-            for accession in accessions:
+            base_accessions = list(set([re.sub("C-|N-","",accession) for accession in accessions]))
+            for base_accession in base_accessions:
                 sequences_loo = dict(sequences)
-                del sequences_loo[accession]
-                hmm_name_loo = hmm_name+"_"+accession
+                for accession in sequences.keys():
+                    if accession.endswith(base_accession):
+                        del sequences_loo[accession]
+                hmm_name_loo = hmm_name+"_"+base_accession
                 build_hmm(sequences_loo, hmm_dir, hmm_name_loo)
 
 def build_hmm(sequences, hmm_dir, hmm_name):
