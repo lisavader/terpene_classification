@@ -75,9 +75,9 @@ if __name__ == "__main__":
     #Argument parsing
     parser = argparse.ArgumentParser()
     parser.add_argument("hmm_database", type=str, help="Database of hmm files to scan against")
-    parser.add_argument("fasta", type=str, help="Fast file with (full-length) input sequences")
-    parser.add_argument("accessions_dir", type=str, help="Directory with accessions per hmm")
-    parser.add_argument("scores_out", type=str, help="Output file containing all bitscores")
+    parser.add_argument("fasta", type=str, help="Fasta file with (full-length) input sequences")
+    parser.add_argument("accessions_path", type=str, help="Path to text files with accessions with which to build a hmm. May contain wildcards.")
+    parser.add_argument("scores_out", type=str, help="Output file containing the top bitscores for each hmm")
     args = parser.parse_args()
     #Run the main script
     main(**vars(args))
